@@ -10,10 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="242dp">
-        </ListView>
+
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
@@ -110,5 +107,10 @@
             android:text="Connect"
             android:layout_gravity="bottom"
             android:textAppearance="@android:style/TextAppearance.Material.Button" />
+
+        <ListView
+            android:id="@+id/sessionsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ListView>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
