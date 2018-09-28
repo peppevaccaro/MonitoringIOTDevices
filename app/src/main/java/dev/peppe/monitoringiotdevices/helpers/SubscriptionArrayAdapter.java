@@ -32,7 +32,7 @@ public class SubscriptionArrayAdapter extends ArrayAdapter<Subscription> {
         TextView qos = convertView.findViewById(R.id.qosValue);
         Subscription item = getItem(position);
         topic.setText(item.topicSubscription);
-        //qos.setText(item.qosSubscription);
+        qos.setText(String.valueOf(item.qosSubscription));
 
         Button deleteButton = convertView.findViewById(R.id.deleteButton);
 

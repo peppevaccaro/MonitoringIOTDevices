@@ -28,12 +28,12 @@ public class TopicArrayAdapter extends ArrayAdapter<Topic> {
         convertView = inflater.inflate(R.layout.topic_listitem, null);
 
         TextView topic = convertView.findViewById(R.id.topicPathText);
-        TextView qos = convertView.findViewById(R.id.qosValue);
+        TextView qosValue = convertView.findViewById(R.id.qosValue);
         TextView retain = convertView.findViewById(R.id.retainValue);
         Topic item = getItem(position);
         topic.setText(item.topicPath);
-        //qos.setText(item.qos);
-        //retain.setText(String.valueOf(item.retain));
+        qosValue.setText(String.valueOf(item.qos));
+        retain.setText(String.valueOf(item.retain));
 
         Button deleteButton = convertView.findViewById(R.id.deleteButton);
 
