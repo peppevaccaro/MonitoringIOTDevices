@@ -7,12 +7,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
 import dev.peppe.monitoringiotdevices.R;
+import dev.peppe.monitoringiotdevices.helpers.SubscriptionArrayAdapter;
+import dev.peppe.monitoringiotdevices.utils.Subscription;
 
 ;
 
@@ -37,18 +38,13 @@ public class SubscribeFragment extends Fragment {
         });
 
         ListView listview = view.findViewById(R.id.subscriptionList);
-        String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-                "Android", "iPhone", "WindowsMobile" };
 
-        final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < values.length; ++i) {
-            list.add(values[i]);
-        }
+        final ArrayList<Subscription> list = new ArrayList<Subscription>();
+        Subscription subscription1 = new Subscription("topic1",0);
+        list.add(subscription1);
 
-        ArrayAdapter adapter = new ArrayAdapter(this.getContext(),R.layout.subscription_listitem,R.id.textViewList,list);
+
+        SubscriptionArrayAdapter adapter = new SubscriptionArrayAdapter(this.getContext(),R.layout.subscription_listitem,list);
         listview.setAdapter(adapter);
     }
 }

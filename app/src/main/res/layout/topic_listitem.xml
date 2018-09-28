@@ -23,7 +23,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="272dp"
+                android:layout_width="249dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
@@ -70,9 +70,10 @@
                         android:paddingLeft="10dp" />
                 </LinearLayout>
             </LinearLayout>
+
             <Button
                 android:id="@+id/deleteButton"
-                android:layout_width="189dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Delete" />

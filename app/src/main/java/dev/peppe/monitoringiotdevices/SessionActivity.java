@@ -6,13 +6,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.util.ArrayList;
+
 import dev.peppe.monitoringiotdevices.helpers.MQTTHelper;
+import dev.peppe.monitoringiotdevices.helpers.SessionArrayAdapter;
+import dev.peppe.monitoringiotdevices.utils.Session;
 
 public class SessionActivity extends AppCompatActivity {
 
@@ -57,6 +62,16 @@ public class SessionActivity extends AppCompatActivity {
                 startMqtt();
             }
         });
+
+        ListView listview = findViewById(R.id.sessionsList);
+
+        final ArrayList<Session> list = new ArrayList<Session>();
+        Session session1 = new Session("http://prova","client1","peppevaccaro","provaPass");
+        list.add(session1);
+
+
+        SessionArrayAdapter adapter = new SessionArrayAdapter(this,R.layout.session_listitem,list);
+        listview.setAdapter(adapter);
     }
 
     private void startMqtt() {
