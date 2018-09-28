@@ -5,7 +5,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 
@@ -25,6 +27,9 @@ public class PublishFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ListView listview = view.findViewById(R.id.topicsList);
+        Button publishButt = view.findViewById(R.id.publishButton);
+        Spinner topics = view.findViewById(R.id.topics);
+        Spinner qosLevels = view.findViewById(R.id.qosLevels);
 
         final ArrayList<Topic> list = new ArrayList<Topic>();
             Topic topic1 = new Topic("temperature",0,false);
@@ -33,5 +38,12 @@ public class PublishFragment extends Fragment {
 
         TopicArrayAdapter adapter = new TopicArrayAdapter(this.getContext(),R.layout.topic_listitem,list);
         listview.setAdapter(adapter);
+
+        publishButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 }

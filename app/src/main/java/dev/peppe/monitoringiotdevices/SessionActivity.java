@@ -2,6 +2,7 @@ package dev.peppe.monitoringiotdevices;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +38,7 @@ public class SessionActivity extends AppCompatActivity {
     String clientId;
     String user;
     String password;
+    ListView listview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,35 +53,45 @@ public class SessionActivity extends AppCompatActivity {
         clientIdInput = findViewById(R.id.clientIdInput);
         usernameInput = findViewById(R.id.usernameInput);
         passwordInput = findViewById(R.id.passwordInput);
+        listview = findViewById(R.id.sessionsList);
+        final ArrayList<Session> list = new ArrayList<Session>();
+        SessionArrayAdapter adapter = new SessionArrayAdapter(this,R.layout.session_listitem,list,mqttHelper);
+        adapter.notifyDataSetChanged();
+        listview.setAdapter(adapter);
 
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                serverURI = serverURIInput.getText().toString();
-                clientId = clientIdInput.getText().toString();
-                user = usernameInput.getText().toString();
-                password = passwordInput.getText().toString();
-                startMqtt();
+                if(!(TextUtils.isEmpty(serverURIInput.getText().toString())))
+                    serverURI = serverURIInput.getText().toString();
+                else
+                    serverURI = getString(R.string.serverUri);
+                if(!(TextUtils.isEmpty(clientIdInput.getText().toString())))
+                    clientId = clientIdInput.getText().toString();
+                else
+                    clientId = getString(R.string.clientId);
+                if(!(TextUtils.isEmpty(usernameInput.getText().toString())))
+                    user = usernameInput.getText().toString();
+                else
+                    user = getString(R.string.username);
+                if(!(TextUtils.isEmpty(passwordInput.getText().toString())))
+                    password = passwordInput.getText().toString();
+                else
+                    password = getString(R.string.password);
+                startMqtt(serverURI,clientId,user,password);
+                Session session = new Session(serverURI,clientId,user,password);
+                list.add(session);
+                listview.invalidateViews();
+                listview.refreshDrawableState();
             }
         });
-
-        ListView listview = findViewById(R.id.sessionsList);
-
-        final ArrayList<Session> list = new ArrayList<Session>();
-        Session session1 = new Session("http://prova","client1","peppevaccaro","provaPass");
-        list.add(session1);
-
-
-        SessionArrayAdapter adapter = new SessionArrayAdapter(this,R.layout.session_listitem,list);
-        listview.setAdapter(adapter);
     }
 
-    private void startMqtt() {
-        mqttHelper = new MQTTHelper(getApplicationContext(),serverURI,clientId,user,password);
+    private void startMqtt(String server,String client,String user,String passw) {
+        mqttHelper = new MQTTHelper(getApplicationContext(),server,client,user,passw);
         mqttHelper.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean b, String s) {
-
             }
 
             @Override

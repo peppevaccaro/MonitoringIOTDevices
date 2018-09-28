@@ -1,6 +1,9 @@
 package dev.peppe.monitoringiotdevices.helpers;
+
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -14,13 +17,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 public class MQTTHelper {
     public MqttAndroidClient mqttAndroidClient;
 
-    //final String serverUri = "tcp://m21.cloudmqtt.com:19400";
-
-    //final String clientId = "Smart Device";
     final String subscriptionTopic = "sensor/+";
-
-    //final String username = "ucutkomy";
-    //String password = "U2JYItlwC5ns";
 
     public MQTTHelper(Context context,String server,String clientId,String user,String passw){
         mqttAndroidClient = new MqttAndroidClient(context, server, clientId);
@@ -102,8 +99,27 @@ public class MQTTHelper {
             });
 
         } catch (MqttException ex) {
-            System.err.println("Exceptionst subscribing");
+            System.err.println("Exceptions subscribing");
             ex.printStackTrace();
+        }
+    }
+
+    public void disconnect() {
+        try {
+            IMqttToken disconToken = mqttAndroidClient.disconnect();
+            disconToken.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Toast toast = Toast.makeText(null, "Disconnected from "+ mqttAndroidClient.getServerURI(), Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                @Override
+                public void onFailure(IMqttToken asyncActionToken,Throwable exception) {
+                // something went wrong, but probably we are disconnected anyway
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
         }
     }
 }

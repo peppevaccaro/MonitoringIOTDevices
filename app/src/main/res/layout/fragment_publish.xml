@@ -47,9 +47,10 @@
                     android:text="Topic" />
 
                 <Spinner
-                    android:id="@+id/spinner2"
+                    android:id="@+id/topics"
                     android:layout_width="206dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:entries="@array/topics"/>/>
 
                 <TextView
                     android:id="@+id/textView7"
@@ -59,9 +60,10 @@
                     android:text="QoS" />
 
                 <Spinner
-                    android:id="@+id/spinner3"
+                    android:id="@+id/qosLevels"
                     android:layout_width="82dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:entries="@array/QoS"/>/>
 
                 <TextView
                     android:id="@+id/textView8"
@@ -70,13 +72,13 @@
                     android:text="Retain" />
 
                 <CheckBox
-                    android:id="@+id/checkBox2"
+                    android:id="@+id/retainValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </GridLayout>
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/publishButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Start To Publish" />

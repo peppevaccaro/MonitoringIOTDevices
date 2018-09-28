@@ -5,4 +5,19 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>ù
     <string name = "title_sessionSettings">Session Settings</string>
+    <string name ="serverUri">tcp://m21.cloudmqtt.com:19400</string>
+    <string name = "clientId">Smart Device</string>
+    <string name = "username">ucutkomy</string>
+    <string name ="password">U2JYItlwC5ns</string>
+    <string-array name="topics">
+        <item>Temperature</item>
+        <item>Memory</item>
+        <item>Battery</item>
+        <item>Humidity</item>
+    </string-array>
+    <string-array name="QoS">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

@@ -1,28 +1,28 @@
 package dev.peppe.monitoringiotdevices.utils;
 
 public class Subscription {
-    public String topic;
-    public int qos;
+    public String topicSubscription;
+    public int qosSubscription;
 
     public Subscription(String topic,int qos){
-        this.topic = topic;
-        this.qos = qos;
+        this.topicSubscription = topic;
+        this.qosSubscription = qos;
     }
 
     public String getTopic() {
-        return topic;
+        return topicSubscription;
     }
 
     public int getQos() {
-        return qos;
+        return qosSubscription;
     }
 
     public void setTopic(String topic) {
-        this.topic = topic;
+        this.topicSubscription = topic;
     }
 
     public void setQos(int qos) {
-        this.qos = qos;
+        this.qosSubscription = qos;
     }
 }
 
