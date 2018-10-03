@@ -21,6 +21,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SessionActivity" />
+        <activity android:name=".SensorActivity" />
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 

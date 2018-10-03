@@ -1,7 +1,9 @@
 package dev.peppe.monitoringiotdevices;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,7 @@ import dev.peppe.monitoringiotdevices.utils.Session;
 public class SessionActivity extends AppCompatActivity {
 
     MQTTHelper mqttHelper;
+    ArrayList<Session> list;
     Button connectButton;
     TextView serverUriText;
     TextView clientIdText;
@@ -44,6 +47,15 @@ public class SessionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.session_setting);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         serverUriText = findViewById(R.id.serverUriText);
         clientIdText = findViewById(R.id.clientIdText);
         usernameText = findViewById(R.id.usernameText);
@@ -54,8 +66,8 @@ public class SessionActivity extends AppCompatActivity {
         usernameInput = findViewById(R.id.usernameInput);
         passwordInput = findViewById(R.id.passwordInput);
         listview = findViewById(R.id.sessionsList);
-        final ArrayList<Session> list = new ArrayList<Session>();
-        SessionArrayAdapter adapter = new SessionArrayAdapter(this,R.layout.session_listitem,list,mqttHelper);
+        list = new ArrayList<Session>();
+        final SessionArrayAdapter adapter = new SessionArrayAdapter(this,R.layout.session_listitem,list,mqttHelper);
         adapter.notifyDataSetChanged();
         listview.setAdapter(adapter);
 
@@ -79,7 +91,8 @@ public class SessionActivity extends AppCompatActivity {
                 else
                     password = getString(R.string.password);
                 startMqtt(serverURI,clientId,user,password);
-                Session session = new Session(serverURI,clientId,user,password);
+                adapter.setMqttHelper(mqttHelper);
+                Session session = new Session(serverURI,clientId,user,password,mqttHelper);
                 list.add(session);
                 listview.invalidateViews();
                 listview.refreshDrawableState();
@@ -110,5 +123,22 @@ public class SessionActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        if(list!=null) {
+            Intent resultIntent = new Intent(this,MainActivity.class);
+            Bundle mBundle = new Bundle();
+            mBundle.putSerializable("mqttHelper", list.get(0).mqttHelper);
+            resultIntent.putExtras(mBundle);
+            startActivity(resultIntent);
+        }
+        else{
+            Intent resultIntent = new Intent();
+            setResult(RESULT_CANCELED, resultIntent);
+        }
+        finish();
+        return true;
     }
 }

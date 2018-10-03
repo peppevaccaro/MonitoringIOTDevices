@@ -15,10 +15,13 @@ import dev.peppe.monitoringiotdevices.utils.Topic;
 
 public class TopicArrayAdapter extends ArrayAdapter<Topic> {
     private ArrayList<Topic> list;
+    private DeleteRowButtonListener deleteRowListener;
+
     public TopicArrayAdapter(Context context, int textViewResourceId,
                              ArrayList<Topic> objects) {
         super(context, textViewResourceId, objects);
         list = objects;
+        deleteRowListener = (TopicArrayAdapter.DeleteRowButtonListener) context;
     }
 
     @Override
@@ -40,10 +43,15 @@ public class TopicArrayAdapter extends ArrayAdapter<Topic> {
         deleteButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                deleteRowListener.onDeleteRowButtonClick(getItem(position).topicPath);
                 list.remove(position);
                 notifyDataSetChanged();
             }
         });
         return convertView;
+    }
+
+    public interface DeleteRowButtonListener{
+        void onDeleteRowButtonClick(String topic);
     }
 }

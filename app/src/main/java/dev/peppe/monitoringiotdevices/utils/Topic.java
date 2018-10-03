@@ -4,6 +4,7 @@ public class Topic {
     public String topicPath;
     public int qos;
     public boolean retain;
+    public String payload;
 
     public Topic(String topic,int qos,boolean retain){
         this.topicPath = topic;
@@ -33,5 +34,13 @@ public class Topic {
 
     public void setRetain(boolean retain) {
         this.retain = retain;
+    }
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload){
+        this.payload = payload;
     }
 }

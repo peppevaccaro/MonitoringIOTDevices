@@ -1,8 +1,8 @@
 package dev.peppe.monitoringiotdevices.helpers;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -14,10 +14,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class MQTTHelper {
-    public MqttAndroidClient mqttAndroidClient;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 
-    final String subscriptionTopic = "sensor/+";
+public class MQTTHelper implements Serializable{
+    public MqttAndroidClient mqttAndroidClient;
 
     public MQTTHelper(Context context,String server,String clientId,String user,String passw){
         mqttAndroidClient = new MqttAndroidClient(context, server, clientId);
@@ -57,7 +58,6 @@ public class MQTTHelper {
         mqttConnectOptions.setPassword(password.toCharArray());
 
         try {
-
             mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -68,7 +68,6 @@ public class MQTTHelper {
                     disconnectedBufferOptions.setPersistBuffer(false);
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
-                    subscribeToTopic();
                 }
 
                 @Override
@@ -84,9 +83,9 @@ public class MQTTHelper {
     }
 
 
-    private void subscribeToTopic() {
+    public void subscribeToTopic(String subscriptionTopic,int qos) {
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+            mqttAndroidClient.subscribe(subscriptionTopic,qos, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.w("Mqtt","Subscribed!");
@@ -104,14 +103,23 @@ public class MQTTHelper {
         }
     }
 
+    public void publishMessage(@NonNull String msg, int qos, @NonNull String topic,@NonNull boolean retain)
+            throws MqttException, UnsupportedEncodingException {
+        byte[] encodedPayload = new byte[0];
+        encodedPayload = msg.getBytes("UTF-8");
+        MqttMessage message = new MqttMessage(encodedPayload);
+        message.setId(5866);
+        message.setRetained(retain);
+        message.setQos(qos);
+        mqttAndroidClient.publish(topic, message);
+    }
+
     public void disconnect() {
         try {
             IMqttToken disconToken = mqttAndroidClient.disconnect();
             disconToken.setActionCallback(new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Toast toast = Toast.makeText(null, "Disconnected from "+ mqttAndroidClient.getServerURI(), Toast.LENGTH_SHORT);
-                    toast.show();
                 }
                 @Override
                 public void onFailure(IMqttToken asyncActionToken,Throwable exception) {

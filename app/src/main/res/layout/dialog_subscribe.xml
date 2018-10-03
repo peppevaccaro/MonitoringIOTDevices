@@ -1,0 +1,38 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="New Subscription"
+        app:titleTextColor="@android:color/white" />
+
+    <Spinner
+        android:id="@+id/topic"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:entries="@array/topics"
+        android:visibility="visible" />
+
+    <Spinner
+        android:id="@+id/qos"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:entries="@array/QoS"
+        android:visibility="visible" />
+
+    <Button
+        android:id="@+id/buttonSub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subscribe" />
+
+</LinearLayout>

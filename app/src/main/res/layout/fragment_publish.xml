@@ -17,6 +17,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
             android:orientation="vertical">
 
             <TextView
@@ -50,7 +53,7 @@
                     android:id="@+id/topics"
                     android:layout_width="206dp"
                     android:layout_height="wrap_content"
-                    android:entries="@array/topics"/>/>
+                    android:entries="@array/topics" />/>
 
                 <TextView
                     android:id="@+id/textView7"
@@ -63,7 +66,7 @@
                     android:id="@+id/qosLevels"
                     android:layout_width="82dp"
                     android:layout_height="wrap_content"
-                    android:entries="@array/QoS"/>/>
+                    android:entries="@array/QoS" />
 
                 <TextView
                     android:id="@+id/textView8"

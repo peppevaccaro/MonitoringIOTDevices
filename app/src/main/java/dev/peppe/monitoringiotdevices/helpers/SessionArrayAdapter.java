@@ -24,6 +24,10 @@ public class SessionArrayAdapter extends ArrayAdapter<Session> {
         this.mqttHelper = mqttHelper;
     }
 
+    public void setMqttHelper(MQTTHelper mqttHelper){
+        this.mqttHelper = mqttHelper;
+    }
+
     @Override
     public Session getItem(int pos) {
         return list.get(pos);
