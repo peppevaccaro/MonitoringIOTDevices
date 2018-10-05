@@ -197,7 +197,6 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     public boolean onPublishButtonClicked(Topic topic) {
         if(mqttHelper!= null && mqttHelper.mqttAndroidClient.isConnected()){
             runPublishThread(topic);
-            Toast.makeText(this, "Published Topic "+topic.getTopicPath(), Toast.LENGTH_SHORT).show();
             return true;
         }
         else {
@@ -252,6 +251,10 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
 
     public interface OnMessageArrivedListener {
         void onMessageArrived(ReceivedMessage message);
+    }
+
+    public void OnMessageArrivedListener(OnMessageArrivedListener activityListener) {
+        this.mListener = activityListener;
     }
 
 }

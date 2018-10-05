@@ -7,10 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.util.ArrayList;
-import java.util.Date;
 
 import dev.peppe.monitoringiotdevices.MainActivity;
 import dev.peppe.monitoringiotdevices.R;
@@ -22,11 +19,13 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
     ListView listview;
     ArrayList<ReceivedMessage> list;
     MqttMessageArrayAdapter adapter;
+    private Bundle savedState = null;
 
     public ChronologyFragment(){}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ((MainActivity) getActivity()).OnMessageArrivedListener(ChronologyFragment.this);
         return inflater.inflate(R.layout.fragment_chronology, container, false);
     }
 
@@ -36,13 +35,36 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
         super.onViewCreated(view, savedInstanceState);
 
         listview = view.findViewById(R.id.listMqttMessage);
-
-        list = new ArrayList<>();
-        ReceivedMessage message1 = new ReceivedMessage(new MqttMessage(),"Topic",new Date());
-        list.add(message1);
+        if(savedInstanceState != null && savedState == null) {
+            savedState = savedInstanceState.getBundle("bundle");
+        }
+        if(savedState != null) {
+            list = (ArrayList<ReceivedMessage>) savedState.getSerializable("listMessages");
+            savedState = null;
+        }
+        else
+            list = new ArrayList<>();
         adapter = new MqttMessageArrayAdapter(this.getContext(),R.layout.mqttmessage_listitem,list);
         adapter.notifyDataSetChanged();
         listview.setAdapter(adapter);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        savedState = saveState();
+    }
+
+    private Bundle saveState() { /* called either from onDestroyView() or onSaveInstanceState() */
+        Bundle state = new Bundle();
+        state.putSerializable("listMessages",list);
+        return state;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBundle("bundle", (savedState != null) ? savedState : saveState());
     }
 
     @Override
