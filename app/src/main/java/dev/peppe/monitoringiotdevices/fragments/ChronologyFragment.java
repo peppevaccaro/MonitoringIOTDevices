@@ -25,7 +25,7 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ((MainActivity) getActivity()).OnMessageArrivedListener(ChronologyFragment.this);
+        ((MainActivity) getActivity()).setOnMessageArrivedListener(ChronologyFragment.this);
         return inflater.inflate(R.layout.fragment_chronology, container, false);
     }
 

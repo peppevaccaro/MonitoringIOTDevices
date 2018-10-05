@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     private MainActivity.OnMessageArrivedListener mListener;
     private SensorManager manager;
     private SensorEventListener listener;
+    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     MQTTHelper mqttHelper;
     String serverURI;
     String clientId;
@@ -95,9 +96,8 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
             connect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     serverURI = getString(R.string.serverUri);
-                    clientId = getString(R.string.clientId);
+                    clientId = randomAlphaNumeric(5);
                     user = getString(R.string.username);
                     password = getString(R.string.password);
                     startMqtt(serverURI,clientId,user,password);
@@ -179,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
                 Log.w("Debug", mqttMessage.toString());
-                Toast.makeText(getApplicationContext(), mqttMessage.toString(), Toast.LENGTH_SHORT).show();
                 ReceivedMessage message = new ReceivedMessage(mqttMessage,topic,new Date());
 
                 if (mListener != null) {
@@ -189,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
             }
         });
     }
@@ -253,8 +251,18 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
         void onMessageArrived(ReceivedMessage message);
     }
 
-    public void OnMessageArrivedListener(OnMessageArrivedListener activityListener) {
+    public void setOnMessageArrivedListener(OnMessageArrivedListener activityListener) {
         this.mListener = activityListener;
+    }
+
+
+    public static String randomAlphaNumeric(int count) {
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
     }
 
 }

@@ -51,6 +51,7 @@ public class MQTTHelper implements Serializable{
 
     private void connect(String user,String password,final String server){
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setKeepAliveInterval(10);
         mqttConnectOptions.setAutomaticReconnect(true);
         mqttConnectOptions.setCleanSession(false);
         mqttConnectOptions.setUserName(user);
@@ -62,7 +63,7 @@ public class MQTTHelper implements Serializable{
                 public void onSuccess(IMqttToken asyncActionToken) {
 
                     DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
-                    disconnectedBufferOptions.setBufferEnabled(true);
+                    disconnectedBufferOptions.setBufferEnabled(false);
                     disconnectedBufferOptions.setBufferSize(100);
                     disconnectedBufferOptions.setPersistBuffer(false);
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
