@@ -2,8 +2,6 @@ package dev.peppe.monitoringiotdevices;
 
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -42,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
         PublishFragment.OnPublishInteractionListener,TopicArrayAdapter.DeleteRowButtonListener,SubscriptionArrayAdapter.UnsubscribeRowButtonListener {
 
     private MainActivity.OnMessageArrivedListener mListener;
-    private SensorManager manager;
+    private SensorManager sensorManager;
     private SensorEventListener listener;
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     MQTTHelper mqttHelper;
@@ -65,34 +63,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
 
             mapThreads = new HashMap<String,PublishThread>();
 
-            manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            listener = new SensorEventListener() {
-                @Override
-                public void onAccuracyChanged(Sensor arg0, int arg1) {
-                }
-
-                @Override
-                public void onSensorChanged(SensorEvent event) {
-                    Sensor sensor = event.sensor;
-                    float currentValue = event.values[0];
-                    if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                        //accelerometerValueText.setText(String.valueOf(currentValue));
-
-                    }
-                    else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-
-                    }
-                    else if (sensor.getType() == Sensor.TYPE_LIGHT) {
-                        //lightValueText.setText(String.valueOf(currentValue));
-
-                    }
-                    else if (sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
-                        //humidityValueText.setText(String.valueOf(currentValue));
-                    }
-
-                }
-            };
-
+            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
             connect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -242,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     }
 
     private void runPublishThread(final Topic topic){
-        PublishThread t = new PublishThread(mqttHelper,topic);
+        PublishThread t = new PublishThread(mqttHelper,topic,sensorManager);
         t.start();
         mapThreads.put(topic.topicPath,t);
     }

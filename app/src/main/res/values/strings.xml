@@ -11,11 +11,11 @@
     <string name = "username">ucutkomy</string>
     <string name ="password">U2JYItlwC5ns</string>
     <string-array name="topics">
-        <item>Temperature</item>
+        <item>CPU Temperature</item>
+        <item>Signal Level</item>
         <item>Light</item>
         <item>Memory</item>
         <item>Battery</item>
-        <item>Humidity</item>
     </string-array>
     <string-array name="QoS">
         <item>0</item>
