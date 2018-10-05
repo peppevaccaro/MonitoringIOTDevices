@@ -17,7 +17,7 @@ public class PublishThread extends Thread {
     }
 
     public void run() {
-        while (mqttHelper != null && running) {
+        while (mqttHelper != null && mqttHelper.mqttAndroidClient.isConnected()&& running) {
             try {
                 mqttHelper.publishMessage("Prova testo", topic.qos, topic.topicPath, topic.retain);
             } catch (MqttException e) {
@@ -26,7 +26,7 @@ public class PublishThread extends Thread {
                 e.printStackTrace();
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

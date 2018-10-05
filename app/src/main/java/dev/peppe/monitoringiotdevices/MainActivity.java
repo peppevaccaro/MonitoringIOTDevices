@@ -20,8 +20,10 @@ import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,12 +31,17 @@ import dev.peppe.monitoringiotdevices.fragments.PublishFragment;
 import dev.peppe.monitoringiotdevices.fragments.SubscribeFragment;
 import dev.peppe.monitoringiotdevices.helpers.MQTTHelper;
 import dev.peppe.monitoringiotdevices.helpers.PagerAdapter;
+import dev.peppe.monitoringiotdevices.helpers.SubscriptionArrayAdapter;
 import dev.peppe.monitoringiotdevices.helpers.TopicArrayAdapter;
 import dev.peppe.monitoringiotdevices.threads.PublishThread;
+import dev.peppe.monitoringiotdevices.utils.ReceivedMessage;
 import dev.peppe.monitoringiotdevices.utils.Subscription;
 import dev.peppe.monitoringiotdevices.utils.Topic;
 
-public class MainActivity extends AppCompatActivity implements SubscribeFragment.OnSubscribeInteractionListener, PublishFragment.OnPublishInteractionListener,TopicArrayAdapter.DeleteRowButtonListener {
+public class MainActivity extends AppCompatActivity implements SubscribeFragment.OnSubscribeInteractionListener,
+        PublishFragment.OnPublishInteractionListener,TopicArrayAdapter.DeleteRowButtonListener,SubscriptionArrayAdapter.UnsubscribeRowButtonListener {
+
+    private MainActivity.OnMessageArrivedListener mListener;
     private SensorManager manager;
     private SensorEventListener listener;
     MQTTHelper mqttHelper;
@@ -42,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     String clientId;
     String user;
     String password;
-    Map<String, PublishThread> mapThreads = new HashMap<String,PublishThread>();
+    Map<String, PublishThread> mapThreads ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,7 +179,12 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
                 Log.w("Debug", mqttMessage.toString());
+                Toast.makeText(getApplicationContext(), mqttMessage.toString(), Toast.LENGTH_SHORT).show();
+                ReceivedMessage message = new ReceivedMessage(mqttMessage,topic,new Date());
 
+                if (mListener != null) {
+                    mListener.onMessageArrived(message);
+                }
             }
 
             @Override
@@ -183,22 +195,9 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     }
     @Override
     public boolean onPublishButtonClicked(Topic topic) {
-        if(mqttHelper!=null){
+        if(mqttHelper!= null && mqttHelper.mqttAndroidClient.isConnected()){
             runPublishThread(topic);
             Toast.makeText(this, "Published Topic "+topic.getTopicPath(), Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        else {
-            Toast.makeText(this, "Before Connect to Broker ", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean onSubscribeButtonClicked(Subscription sub) {
-        if(mqttHelper!=null){
-            mqttHelper.subscribeToTopic(sub.topicSubscription,sub.qosSubscription);
-            Toast.makeText(this,"Subscribed to " +sub.getTopic(), Toast.LENGTH_SHORT).show();
             return true;
         }
         else {
@@ -214,9 +213,45 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
         mapThreads.remove(topic);
     }
 
+    @Override
+    public boolean onSubscribeButtonClicked(Subscription sub) {
+        if(mqttHelper!= null && mqttHelper.mqttAndroidClient.isConnected()){
+            mqttHelper.subscribeToTopic(sub.topicSubscription,sub.qosSubscription);
+            Toast.makeText(this,"Subscribed to " +sub.getTopic(), Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        else {
+            Toast.makeText(this, "Before Connect to Broker ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean onUnsubscribeRowButtonClick(String topic){
+        if(mqttHelper!= null && mqttHelper.mqttAndroidClient.isConnected()){
+            try {
+                mqttHelper.unSubscribe(topic);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this,"Unsubscribed to " +topic, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        else {
+            Toast.makeText(this, "Before Connect to Broker ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+    }
+
     private void runPublishThread(final Topic topic){
         PublishThread t = new PublishThread(mqttHelper,topic);
         t.start();
         mapThreads.put(topic.topicPath,t);
     }
+
+    public interface OnMessageArrivedListener {
+        void onMessageArrived(ReceivedMessage message);
+    }
+
 }

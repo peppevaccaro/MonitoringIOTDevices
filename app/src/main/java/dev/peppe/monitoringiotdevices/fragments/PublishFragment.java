@@ -1,13 +1,6 @@
 package dev.peppe.monitoringiotdevices.fragments;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -15,23 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
 
 import dev.peppe.monitoringiotdevices.R;
-import dev.peppe.monitoringiotdevices.broadcast_receiver.BatteryBroadcastReceiver;
 import dev.peppe.monitoringiotdevices.helpers.TopicArrayAdapter;
 import dev.peppe.monitoringiotdevices.utils.Topic;
 
-public class PublishFragment extends Fragment implements SensorEventListener {
+public class PublishFragment extends Fragment {
     private OnPublishInteractionListener mListener;
     ListView listview;
-    private SensorManager mSensorManager;
-    private Sensor mSensorTemperature;
-    private Sensor mSensorLight;
-    public float currentLight;
 
     public PublishFragment(){}
 
@@ -44,10 +33,10 @@ public class PublishFragment extends Fragment implements SensorEventListener {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Setup any handles to view objects here
         super.onViewCreated(view, savedInstanceState);
-        mSensorManager = (SensorManager) view.getContext().getSystemService(Context.SENSOR_SERVICE);
 
         listview = view.findViewById(R.id.topicsList);
         Button publishButt = view.findViewById(R.id.publishButton);
+        final EditText deviceValue = view.findViewById(R.id.deviceValue);
         final Spinner topics = view.findViewById(R.id.topics);
         final Spinner qosLevels = view.findViewById(R.id.qosLevels);
         final CheckBox retainValue = view.findViewById(R.id.retainValue);
@@ -62,17 +51,11 @@ public class PublishFragment extends Fragment implements SensorEventListener {
             @Override
             public void onClick(View v) {
                 String topicText = topics.getSelectedItem().toString();
-                Sensor sensorSelected = getSensor(topicText);
                 int qosLevel = Integer.parseInt(qosLevels.getSelectedItem().toString());
                 boolean retain = retainValue.isChecked();
-
-                if(topicText.equals("Battery")) {
-                    BroadcastReceiver br = new BatteryBroadcastReceiver();
-                    IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-                    v.getContext().registerReceiver(br, filter);
-                }
-
-                Topic topic = new Topic(topicText,qosLevel,retain);
+                String device = deviceValue.getText().toString();
+                Topic topic = new Topic(device,topicText,qosLevel,retain);
+                topic.setTopicPath();
                 if (mListener != null) {
                     if(mListener.onPublishButtonClicked(topic)){
                         list.add(topic);
@@ -99,33 +82,6 @@ public class PublishFragment extends Fragment implements SensorEventListener {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy)
-    {
-        if(sensor.getType() == Sensor.TYPE_LIGHT)
-        {
-
-        }
-    }
-
-    public void onSensorChanged(SensorEvent event)
-    {
-        if( event.sensor.getType() == Sensor.TYPE_LIGHT)
-        {
-            currentLight = event.values[0];
-        }
-    }
-
-    public Sensor getSensor(String topic) {
-        switch (topic) {
-            case "temperature":
-                return mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-            case "light":
-                return mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-            default:
-                return null;
-        }
     }
 
     public interface OnPublishInteractionListener {

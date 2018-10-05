@@ -18,6 +18,7 @@ import dev.peppe.monitoringiotdevices.utils.Subscription;
 public class SubscribeFragment extends Fragment {
     private OnSubscribeInteractionListener mListener;
     ArrayList<Subscription> list;
+    private Bundle savedState = null;
 
     public SubscribeFragment(){}
 
@@ -28,11 +29,18 @@ public class SubscribeFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // Setup any handles to view objects here
         super.onViewCreated(view, savedInstanceState);
 
+        if(savedInstanceState != null && savedState == null) {
+            savedState = savedInstanceState.getBundle("bundle");
+        }
+        if(savedState != null) {
+            list = (ArrayList<Subscription>) savedState.getSerializable("listSubscription");
+            savedState = null;
+        }
+        else
+            list = new ArrayList<>();
         final ListView listview = view.findViewById(R.id.subscriptionList);
-        list = new ArrayList<Subscription>();
         Button addButton = view.findViewById(R.id.addButton);
         addButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view) {
@@ -40,9 +48,11 @@ public class SubscribeFragment extends Fragment {
                 dialog.onButtonOk=new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        String device = dialog.device.getText().toString();
                         String topic = dialog.topic.getSelectedItem().toString();
                         int qos = Integer.parseInt(dialog.qos.getSelectedItem().toString());
-                        Subscription subscript = new Subscription(topic,qos);
+                        Subscription subscript = new Subscription(device,topic,qos);
+                        subscript.setTopicPath();
                         if (mListener != null) {
                             if(mListener.onSubscribeButtonClicked(subscript)){
                                 list.add(subscript);
@@ -79,10 +89,25 @@ public class SubscribeFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        savedState = saveState();
+    }
+
+    private Bundle saveState() { /* called either from onDestroyView() or onSaveInstanceState() */
+        Bundle state = new Bundle();
+        state.putSerializable("listSubscription",list);
+        return state;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBundle("bundle", (savedState != null) ? savedState : saveState());
+    }
+
     public interface OnSubscribeInteractionListener {
         boolean onSubscribeButtonClicked(Subscription sub);
     }
 }
-
-
-

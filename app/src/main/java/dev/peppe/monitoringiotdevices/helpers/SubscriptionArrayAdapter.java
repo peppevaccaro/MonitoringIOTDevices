@@ -16,10 +16,13 @@ import dev.peppe.monitoringiotdevices.utils.Subscription;
 public class SubscriptionArrayAdapter extends ArrayAdapter<Subscription> {
 
     private ArrayList<Subscription> list;
+    private SubscriptionArrayAdapter.UnsubscribeRowButtonListener unsubscribeRowListener;
+
     public SubscriptionArrayAdapter(Context context, int textViewResourceId,
                                ArrayList<Subscription> objects) {
         super(context, textViewResourceId, objects);
         list = objects;
+        unsubscribeRowListener = (SubscriptionArrayAdapter.UnsubscribeRowButtonListener) context;
     }
 
     @Override
@@ -39,10 +42,16 @@ public class SubscriptionArrayAdapter extends ArrayAdapter<Subscription> {
         deleteButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                list.remove(position);
-                notifyDataSetChanged();
+                if(unsubscribeRowListener.onUnsubscribeRowButtonClick(getItem(position).topicSubscription)) {
+                    list.remove(position);
+                    notifyDataSetChanged();
+                }
             }
         });
         return convertView;
+    }
+
+    public interface UnsubscribeRowButtonListener{
+        boolean onUnsubscribeRowButtonClick(String topic);
     }
 }

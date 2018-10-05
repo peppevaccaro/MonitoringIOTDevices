@@ -1,28 +1,27 @@
 package dev.peppe.monitoringiotdevices.fragments;
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ListView;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import dev.peppe.monitoringiotdevices.MainActivity;
 import dev.peppe.monitoringiotdevices.R;
+import dev.peppe.monitoringiotdevices.helpers.MqttMessageArrayAdapter;
+import dev.peppe.monitoringiotdevices.utils.ReceivedMessage;
 
-public class ChronologyFragment extends Fragment  {
+public class ChronologyFragment extends Fragment implements MainActivity.OnMessageArrivedListener {
 
-
-    private SensorManager manager;
-    private SensorEventListener listener;
-    private TextView tempValueText;
-    private TextView humidityValueText;
-    private TextView lightValueText;
-    private TextView accelerometerValueText;
+    ListView listview;
+    ArrayList<ReceivedMessage> list;
+    MqttMessageArrayAdapter adapter;
 
     public ChronologyFragment(){}
 
@@ -36,41 +35,22 @@ public class ChronologyFragment extends Fragment  {
         // Setup any handles to view objects here
         super.onViewCreated(view, savedInstanceState);
 
-        manager = (SensorManager) view.getContext().getSystemService(Context.SENSOR_SERVICE);
-        tempValueText = view.findViewById(R.id.temperatureValue);
-        humidityValueText = view.findViewById(R.id.humidityValue);
-        lightValueText = view.findViewById(R.id.lightValue);
-        accelerometerValueText = view.findViewById(R.id.accelerometerValue);
+        listview = view.findViewById(R.id.listMqttMessage);
 
-        listener = new SensorEventListener() {
-            @Override
-            public void onAccuracyChanged(Sensor arg0, int arg1) {
-            }
+        list = new ArrayList<>();
+        ReceivedMessage message1 = new ReceivedMessage(new MqttMessage(),"Topic",new Date());
+        list.add(message1);
+        adapter = new MqttMessageArrayAdapter(this.getContext(),R.layout.mqttmessage_listitem,list);
+        adapter.notifyDataSetChanged();
+        listview.setAdapter(adapter);
+    }
 
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                Sensor sensor = event.sensor;
-                float currentValue = event.values[0];
-                if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                    accelerometerValueText.setText(String.valueOf(currentValue));
+    @Override
+    public void onMessageArrived(ReceivedMessage message){
+        list.add(message);
+        listview.invalidateViews();
+        listview.refreshDrawableState();
+        adapter.notifyDataSetChanged();
 
-                }
-                else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-
-                }
-                else if (sensor.getType() == Sensor.TYPE_LIGHT) {
-                    lightValueText.setText(String.valueOf(currentValue));
-
-                }
-                else if (sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
-                    humidityValueText.setText(String.valueOf(currentValue));
-                }
-
-            }
-        };
-        manager.registerListener(listener, manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-        manager.registerListener(listener, manager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE), SensorManager.SENSOR_DELAY_NORMAL);
-        manager.registerListener(listener, manager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
-        manager.registerListener(listener, manager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
 }

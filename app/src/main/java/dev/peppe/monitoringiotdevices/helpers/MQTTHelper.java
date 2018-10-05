@@ -35,7 +35,6 @@ public class MQTTHelper implements Serializable{
 
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
-                Log.w("Mqtt", mqttMessage.toString());
             }
 
             @Override
@@ -101,6 +100,21 @@ public class MQTTHelper implements Serializable{
             System.err.println("Exceptions subscribing");
             ex.printStackTrace();
         }
+    }
+
+    public void unSubscribe(@NonNull final String topic) throws MqttException {
+
+        IMqttToken token = mqttAndroidClient.unsubscribe(topic);
+        token.setActionCallback(new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken iMqttToken) {
+
+            }
+
+            @Override
+            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+            }
+        });
     }
 
     public void publishMessage(@NonNull String msg, int qos, @NonNull String topic,@NonNull boolean retain)

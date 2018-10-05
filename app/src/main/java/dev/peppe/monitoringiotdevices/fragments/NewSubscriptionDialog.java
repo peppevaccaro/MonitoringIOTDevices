@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 import dev.peppe.monitoringiotdevices.R;
@@ -14,6 +15,7 @@ import dev.peppe.monitoringiotdevices.R;
 public class NewSubscriptionDialog extends DialogFragment {
 
     public View.OnClickListener onButtonOk;
+    public EditText device;
     public Spinner topic;
     public Spinner qos;
 
@@ -25,6 +27,7 @@ public class NewSubscriptionDialog extends DialogFragment {
         Button buttonSub = view.findViewById(R.id.buttonSub);
         topic = view.findViewById(R.id.topic);
         qos = view.findViewById(R.id.qos);
+        device = view.findViewById(R.id.deviceInput);
         buttonSub.setOnClickListener(onButtonOk);
          builder.setView(view);
          return builder.create();

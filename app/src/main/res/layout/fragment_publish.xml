@@ -39,13 +39,29 @@
                 android:orientation="horizontal"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
-                android:rowCount="3">
+                android:rowCount="4">
+
+                <TextView
+                    android:id="@+id/deviceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="15dp"
+                    android:paddingRight="50dp"
+                    android:text="Device" />
+
+                <EditText
+                    android:id="@+id/deviceValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:textAppearance="@android:style/TextAppearance.Material.Small" />
 
                 <TextView
                     android:id="@+id/textView6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="30dp"
+                    android:paddingBottom="15dp"
                     android:paddingRight="50dp"
                     android:text="Topic" />
 
@@ -59,7 +75,7 @@
                     android:id="@+id/textView7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="30dp"
+                    android:paddingBottom="15dp"
                     android:text="QoS" />
 
                 <Spinner
