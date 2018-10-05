@@ -1,9 +1,13 @@
 package dev.peppe.monitoringiotdevices.threads;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.BatteryManager;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -19,12 +23,15 @@ import dev.peppe.monitoringiotdevices.helpers.MQTTHelper;
 import dev.peppe.monitoringiotdevices.utils.Topic;
 
 public class PublishThread extends Thread {
+    private Context context;
     private MQTTHelper mqttHelper;
+    private Intent batteryStatus;
     private SensorManager sensorManager;
     private TelephonyManager telManager;
     private Topic topic;
     private Sensor sensorManaged;
     private String currentValue;
+    private boolean sensorCPUTemperature = false;
 
     private SensorEventListener listener = new SensorEventListener() {
         @Override
@@ -56,20 +63,22 @@ public class PublishThread extends Thread {
 
     volatile boolean running = true;
 
-    public PublishThread(MQTTHelper mqttHelper,Topic topic,SensorManager manager,TelephonyManager telManager){
+    public PublishThread(Context context,MQTTHelper mqttHelper,Topic topic,SensorManager manager,TelephonyManager telManager){
         this.mqttHelper = mqttHelper;
         this.topic = topic;
         this.sensorManager = manager;
         this.telManager = telManager;
+        this.context = context;
     }
 
     public void run() {
-        if(sensorExists(topic.getTopic()))
-            sensorManaged = getSensor();
+        manageSensor();
         while (mqttHelper != null && mqttHelper.mqttAndroidClient.isConnected()&& running) {
             try {
-                if(!sensorExists(topic.getTopic()))
-                    manageTopic(topic.getTopic());
+                if(sensorCPUTemperature)
+                    currentValue = getCpuTemp();
+                if(batteryStatus!=null)
+                    currentValue = getBatteryPercentage();
                 if(currentValue!=null)
                     mqttHelper.publishMessage(currentValue, topic.qos, topic.topicPath, topic.retain);
             } catch (MqttException e) {
@@ -89,25 +98,11 @@ public class PublishThread extends Thread {
         running = false;
     }
 
-    public Sensor getSensor(){
+    public void manageSensor(){
         switch(topic.getTopic()){
             case "Light": {
                 sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT),SensorManager.SENSOR_DELAY_UI);
-                return sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-            }
-            default:
-                return null;
-        }
-    }
-
-    public void manageTopic(String topic){
-        switch (topic) {
-            case "CPU Temperature": {
-                currentValue = getCpuTemp();
-                break;
-            }
-
-            case "Battery": {
+                sensorManaged = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
                 break;
             }
 
@@ -116,20 +111,20 @@ public class PublishThread extends Thread {
                 telManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
                         PhoneStateListener.LISTEN_CELL_LOCATION);
             }
+
+            case "CPU Temperature":{
+                sensorCPUTemperature = true;
+            }
+
+            case "Battery":{
+                IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                batteryStatus = context.registerReceiver(null, iFilter);
+            }
+
             default:
                 break;
         }
     }
-
-    public boolean sensorExists(String topic){
-        switch (topic){
-            case "Light": {
-                return true;
-            }
-            default:
-                return false;
-            }
-        }
 
         public String getCpuTemp() {
             Process p;
@@ -148,4 +143,14 @@ public class PublishThread extends Thread {
                 return String.valueOf(0.0f);
             }
         }
+
+    public String getBatteryPercentage() {
+
+        int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
+        int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
+
+        float batteryPct = level / (float) scale;
+
+        return String.valueOf(batteryPct * 100);
+    }
 }

@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     }
 
     private void runPublishThread(final Topic topic){
-        PublishThread t = new PublishThread(mqttHelper,topic,sensorManager,telephonyManager);
+        PublishThread t = new PublishThread(this,mqttHelper,topic,sensorManager,telephonyManager);
         t.start();
         mapThreads.put(topic.topicPath,t);
     }

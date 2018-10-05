@@ -12,7 +12,7 @@
     <string name ="password">U2JYItlwC5ns</string>
     <string-array name="topics">
         <item>CPU Temperature</item>
-        <item>Signal Level</item>
+        <item>Signal Strength</item>
         <item>Light</item>
         <item>Memory</item>
         <item>Battery</item>
