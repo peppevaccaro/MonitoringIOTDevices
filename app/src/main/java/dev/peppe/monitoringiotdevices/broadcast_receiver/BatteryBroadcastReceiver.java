@@ -18,7 +18,6 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
 
         // Calculate the battery charged percentage
         float percentage = level/ (float) scale;
-        // Update the progress bar to display current battery charged percentage
         mProgressStatus = (int)((percentage)*100);
     }
 

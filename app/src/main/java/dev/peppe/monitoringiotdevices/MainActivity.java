@@ -9,6 +9,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
         PublishFragment.OnPublishInteractionListener,TopicArrayAdapter.DeleteRowButtonListener,SubscriptionArrayAdapter.UnsubscribeRowButtonListener {
 
     private MainActivity.OnMessageArrivedListener mListener;
+    private TelephonyManager telephonyManager;
     private SensorManager sensorManager;
     private SensorEventListener listener;
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
             mapThreads = new HashMap<String,PublishThread>();
 
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             connect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -213,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     }
 
     private void runPublishThread(final Topic topic){
-        PublishThread t = new PublishThread(mqttHelper,topic,sensorManager);
+        PublishThread t = new PublishThread(mqttHelper,topic,sensorManager,telephonyManager);
         t.start();
         mapThreads.put(topic.topicPath,t);
     }
