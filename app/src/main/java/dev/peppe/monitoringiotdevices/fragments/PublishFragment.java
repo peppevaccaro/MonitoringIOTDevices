@@ -58,7 +58,7 @@ public class PublishFragment extends Fragment {
                 topic.setTopicPath();
                 if (mListener != null) {
                     if(mListener.onPublishButtonClicked(topic)){
-                        list.add(topic);
+                        list.add(0,topic);
                         listview.invalidateViews();
                         listview.refreshDrawableState();
                     }

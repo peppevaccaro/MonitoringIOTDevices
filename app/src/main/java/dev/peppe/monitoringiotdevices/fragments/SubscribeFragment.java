@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -53,14 +54,23 @@ public class SubscribeFragment extends Fragment {
                         int qos = Integer.parseInt(dialog.qos.getSelectedItem().toString());
                         Subscription subscript = new Subscription(device,topic,qos);
                         subscript.setTopicPath();
-                        if (mListener != null) {
+                        boolean exists = false;
+                        for(Subscription item : list){
+                            if(item.getTopicPath().equals(subscript.getTopicPath())) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (mListener != null && !exists) {
                             if(mListener.onSubscribeButtonClicked(subscript)){
-                                list.add(subscript);
+                                list.add(0,subscript);
                                 listview.invalidateViews();
                                 listview.refreshDrawableState();
                             }
                         }
                         dialog.dismiss();
+                        if(exists)
+                            Toast.makeText(getContext(), "Subscription already exists", Toast.LENGTH_SHORT).show();
                     }
                 };
                 dialog.show(getActivity().getSupportFragmentManager(),null);

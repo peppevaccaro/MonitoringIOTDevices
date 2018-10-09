@@ -168,8 +168,16 @@ public class MainActivity extends AppCompatActivity implements SubscribeFragment
     @Override
     public boolean onPublishButtonClicked(Topic topic) {
         if(mqttHelper!= null && mqttHelper.mqttAndroidClient.isConnected()){
-            runPublishThread(topic);
-            return true;
+            if(!mapThreads.containsKey(topic.topicPath)) {
+                runPublishThread(topic);
+                return true;
+            }
+            else
+            {
+                Toast.makeText(this, "This topic is already published ", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
         }
         else {
             Toast.makeText(this, "Before Connect to Broker ", Toast.LENGTH_SHORT).show();

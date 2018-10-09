@@ -8,6 +8,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.BatteryManager;
+import android.os.Environment;
+import android.os.StatFs;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -16,6 +18,7 @@ import android.telephony.TelephonyManager;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
@@ -26,6 +29,7 @@ public class PublishThread extends Thread {
     private Context context;
     private MQTTHelper mqttHelper;
     private Intent batteryStatus;
+    private boolean internalMemoryStatus = false;
     private SensorManager sensorManager;
     private TelephonyManager telManager;
     private Topic topic;
@@ -41,8 +45,8 @@ public class PublishThread extends Thread {
         @Override
         public void onSensorChanged(SensorEvent event) {
             Sensor sensor = event.sensor;
-            if (sensor.getType() == sensorManaged.getType())
-                currentValue = String.valueOf(event.values[0]);
+            if (sensor.getType() == sensorManaged.getType() && sensorManaged.getType()== Sensor.TYPE_LIGHT)
+                currentValue = String.valueOf(event.values[0]) +" lux";
         }
     };
 
@@ -57,7 +61,7 @@ public class PublishThread extends Thread {
         @Override
         public void onSignalStrengthsChanged(SignalStrength sStrength)
         {
-            currentValue = String.valueOf(sStrength.getLevel());
+            currentValue = String.valueOf(sStrength.getLevel())+" dB";
         }
     };
 
@@ -77,8 +81,10 @@ public class PublishThread extends Thread {
             try {
                 if(sensorCPUTemperature)
                     currentValue = getCpuTemp();
-                if(batteryStatus!=null)
+                else if(batteryStatus!=null)
                     currentValue = getBatteryPercentage();
+                else if(internalMemoryStatus)
+                    currentValue = getAvailableInternalMemorySize();
                 if(currentValue!=null)
                     mqttHelper.publishMessage(currentValue, topic.qos, topic.topicPath, topic.retain);
             } catch (MqttException e) {
@@ -101,8 +107,8 @@ public class PublishThread extends Thread {
     public void manageSensor(){
         switch(topic.getTopic()){
             case "Light": {
-                sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT),SensorManager.SENSOR_DELAY_UI);
                 sensorManaged = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+                sensorManager.registerListener(listener,sensorManaged,SensorManager.SENSOR_DELAY_UI);
                 break;
             }
 
@@ -110,15 +116,23 @@ public class PublishThread extends Thread {
                 // Register the listener with the telephony manager
                 telManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
                         PhoneStateListener.LISTEN_CELL_LOCATION);
+                break;
             }
 
             case "CPU Temperature":{
                 sensorCPUTemperature = true;
+                break;
             }
 
             case "Battery":{
                 IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
                 batteryStatus = context.registerReceiver(null, iFilter);
+                break;
+            }
+
+            case "Memory":{
+                internalMemoryStatus = true;
+                break;
             }
 
             default:
@@ -136,11 +150,11 @@ public class PublishThread extends Thread {
                 String line = reader.readLine();
                 float temp = Float.parseFloat(line) / 1000.0f;
 
-                return String.valueOf(temp);
+                return (String.valueOf(temp)+ " °C");
 
             } catch (Exception e) {
                 e.printStackTrace();
-                return String.valueOf(0.0f);
+                return (String.valueOf(0.0f)+ " °C");
             }
         }
 
@@ -151,6 +165,39 @@ public class PublishThread extends Thread {
 
         float batteryPct = level / (float) scale;
 
-        return String.valueOf(batteryPct * 100);
+        return (String.valueOf(batteryPct * 100)+ "%");
     }
+
+    public static String getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+        return formatSize(availableBlocks * blockSize);
+    }
+
+    public static String formatSize(long size) {
+        String suffix = null;
+
+        if (size >= 1024) {
+            suffix = "KB";
+            size /= 1024;
+            if (size >= 1024) {
+                suffix = "MB";
+                size /= 1024;
+            }
+        }
+
+        StringBuilder resultBuffer = new StringBuilder(Long.toString(size));
+
+        int commaOffset = resultBuffer.length() - 3;
+        while (commaOffset > 0) {
+            resultBuffer.insert(commaOffset, ',');
+            commaOffset -= 3;
+        }
+
+        if (suffix != null) resultBuffer.append(suffix);
+        return resultBuffer.toString();
+    }
+
 }

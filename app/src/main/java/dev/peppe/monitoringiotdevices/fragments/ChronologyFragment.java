@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import java.util.ArrayList;
 
@@ -19,6 +20,8 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
     ListView listview;
     ArrayList<ReceivedMessage> list;
     MqttMessageArrayAdapter adapter;
+    SearchView searchView;
+    String queryString;
     private Bundle savedState = null;
 
     public ChronologyFragment(){}
@@ -33,6 +36,22 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Setup any handles to view objects here
         super.onViewCreated(view, savedInstanceState);
+        searchView = view.findViewById(R.id.searchView);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String arg0) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                queryString = query;
+                adapter.getFilter().filter(query);
+                return true;
+            }
+        });
 
         listview = view.findViewById(R.id.listMqttMessage);
         if(savedInstanceState != null && savedState == null) {
@@ -44,9 +63,10 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
         }
         else
             list = new ArrayList<>();
-        adapter = new MqttMessageArrayAdapter(this.getContext(),R.layout.mqttmessage_listitem,list);
+        adapter = new MqttMessageArrayAdapter(this.getContext(), R.layout.mqttmessage_listitem, list);
         adapter.notifyDataSetChanged();
         listview.setAdapter(adapter);
+
     }
 
     @Override
@@ -69,10 +89,11 @@ public class ChronologyFragment extends Fragment implements MainActivity.OnMessa
 
     @Override
     public void onMessageArrived(ReceivedMessage message){
-        list.add(message);
+        list.add(0,message);
+        adapter.getFilter().filter(queryString);
+        adapter.notifyDataSetChanged();
         listview.invalidateViews();
         listview.refreshDrawableState();
-        adapter.notifyDataSetChanged();
-
     }
+
 }
